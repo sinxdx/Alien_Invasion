@@ -10,6 +10,7 @@ from pygame.sprite import Group
 from ship import Ship
 from Setting import Settings
 import game_function as gf
+from game_status import GameStats
 
 
 def run_game():
@@ -27,13 +28,17 @@ def run_game():
     '''创建敌机舰队'''
     aliens = Group()
     gf.creat_fleet(auto_setting, screen, 3, aliens)
+    '''创建游戏统计数据'''
+    stats = GameStats(auto_setting)
     '''游戏的主循环'''
     while True:
         '''监视鼠标和键盘事件'''
-        gf.check_events(check_events_screen=screen, check_events_setting=auto_setting, check_events_ship=ship,
-                        check_events_bullets=bullets)
+        gf.check_events(check_events_screen=screen, check_events_setting=auto_setting,
+                        check_events_ship=ship, check_events_bullets=bullets)
         '''更新物品，包括子弹和飞船'''
-        gf.object_update(ship=ship, bullets=bullets, aliens=aliens)
+        if stats.game_active:  # 自机生命值大于0， 则游戏继续
+            gf.object_update(setting=auto_setting, screen=screen, stats=stats,
+                             ship=ship, bullets=bullets, aliens=aliens)
         '''绘制屏幕，绘制自机，绘制子弹，然后显示'''
         gf.screen_update(screen, auto_setting, ship, bullets, aliens)
 

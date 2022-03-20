@@ -1,5 +1,5 @@
 import sys
-
+from time import sleep
 import pygame
 
 import key_event
@@ -18,7 +18,7 @@ def check_events(check_events_screen, check_events_setting, check_events_ship, c
             key_event.key_up(event, check_events_ship, )
 
 
-def object_update(ship, bullets, aliens):
+def object_update(ship, setting, screen, bullets, aliens, stats):
     """用于对游戏中的几个对象：自机，子弹，敌机进行更新"""
     '''更新自机'''
     ship.update()
@@ -30,7 +30,7 @@ def object_update(ship, bullets, aliens):
     collision = pygame.sprite.groupcollide(bullets, aliens, True, True)
     '''检查自机是否与敌机发生碰撞'''
     if pygame.sprite.spritecollideany(ship, aliens):
-        print("游戏结束")
+        ship_hit(setting, stats, screen, ship, bullets, aliens)
 
 
 def screen_update(screen, auto_setting, ship, bullets, aliens):
@@ -71,3 +71,25 @@ def creat_fleet(setting, screen, line_num, aliens):
             alien.rect.x = alien.x
             alien.rect.y = alien.y
             aliens.add(alien)
+
+
+def ship_hit(setting, stats, screen, ship, bullets, aliens):
+    """当自机被撞到时
+    自机生命值 -1, 自己恢复到原始位置
+    清空子弹
+    敌机消失，重置到原始状态
+    暂停0.5秒"""
+    '''自机生命值-1'''
+    stats.ship_left -= 1
+    ship.center_ship()
+    '''清空子弹'''
+    bullets.empty()
+    '''重置敌机'''
+    aliens.empty()
+    creat_fleet(setting=setting, screen=screen, line_num=3, aliens=aliens)
+
+    if stats.ship_left > 0:
+        '''暂停游戏'''
+        sleep(0.5)
+    else:
+        stats.game_active = False

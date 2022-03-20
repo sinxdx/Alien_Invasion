@@ -47,3 +47,9 @@ class Ship:
     def blitem(self):
         """在指定位置绘制自机"""
         self.screen.blit(self.image, self.rect)
+
+    def center_ship(self):
+        self.rect.centerx = self.screen_rect.centerx
+        self.rect.centery = self.screen_rect.bottom
+        self.centerx = float(self.rect.centerx)
+        self.centery = float(self.rect.centery)
