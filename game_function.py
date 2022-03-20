@@ -2,20 +2,29 @@ import sys
 from time import sleep
 import pygame
 
+import button
 import key_event
 from alien import Alien
 
 
-def check_events(check_events_screen, check_events_setting, check_events_ship, check_events_bullets):
-    """检查事件，然后对键盘事件进行分类，并分发到对应的函数中去"""
+def check_events(screen, stats, setting, ship, bullets, button):
+    """检查事件，然后对事件进行分类，并分发到对应的函数中去"""
+
+    def check_mouse_event(stats_in_mouse, play_button, mouse_x, mouse_y):
+        """当玩家单击play_button时，游戏开始"""
+        if play_button.rect.collidepoint(mouse_x, mouse_y):
+            stats_in_mouse.game_active = True
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
         elif event.type == pygame.KEYDOWN:
-            key_event.key_down(event, check_events_setting, check_events_screen, check_events_ship,
-                               check_events_bullets)
+            key_event.key_down(event, setting, screen, ship, bullets)
         elif event.type == pygame.KEYUP:
-            key_event.key_up(event, check_events_ship, )
+            key_event.key_up(event, ship, )
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            check_mouse_event(stats, button, mouse_x, mouse_y)
 
 
 def object_update(ship, setting, screen, bullets, aliens, stats):
@@ -33,7 +42,7 @@ def object_update(ship, setting, screen, bullets, aliens, stats):
         ship_hit(setting, stats, screen, ship, bullets, aliens)
 
 
-def screen_update(screen, auto_setting, ship, bullets, aliens):
+def screen_update(screen, stats, auto_setting, ship, bullets, aliens, button):
     """更新背景、自机、子弹，敌机然后绘制"""
     screen.fill(auto_setting.background_colour)  # 画出背景图图层
     ship.blitem()  # 在屏幕上画出自机
@@ -49,6 +58,9 @@ def screen_update(screen, auto_setting, ship, bullets, aliens):
             alien.blitem()
     else:
         creat_fleet(auto_setting, screen, 3, aliens)
+    '''游戏非活动时，绘制按钮'''
+    if not stats.game_active:
+        button.draw_button()
     '''显示出绘制的屏幕'''
     pygame.display.flip()
 
@@ -62,9 +74,9 @@ def creat_fleet(setting, screen, line_num, aliens):
     alien_sqrx = alien.rect.x + 2 * reserve_space  # 每个敌机需要占据的全部横向长度
     alien_sqry = alien.rect.y + 2 * reserve_space  # 每个敌机需要占据的全部纵向长度
     '''要计算生成一行生成几个敌机，需要用屏幕宽度去除以每个敌机占据的横向长度'''
-    每行生成的外星人数量 = int(setting.screen_width / alien_sqrx - 1)
+    fleet_line = int(setting.screen_width / alien_sqrx - 1)
     for line in range(line_num):
-        for column in range(每行生成的外星人数量):
+        for column in range(fleet_line):
             alien = Alien(setting, screen)
             alien.x = reserve_space * (2 * column + 1)
             alien.y = reserve_space * (2 * line + 1)

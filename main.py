@@ -11,6 +11,7 @@ from ship import Ship
 from Setting import Settings
 import game_function as gf
 from game_status import GameStats
+from button import Button
 
 
 def run_game():
@@ -30,17 +31,19 @@ def run_game():
     gf.creat_fleet(auto_setting, screen, 3, aliens)
     '''创建游戏统计数据'''
     stats = GameStats(auto_setting)
+    '''创建开始按钮'''
+    button: Button = Button(screen=screen, msg="Play")
     '''游戏的主循环'''
     while True:
         '''监视鼠标和键盘事件'''
-        gf.check_events(check_events_screen=screen, check_events_setting=auto_setting,
-                        check_events_ship=ship, check_events_bullets=bullets)
+        gf.check_events(screen=screen, stats=stats, setting=auto_setting, ship=ship, bullets=bullets, button=button)
         '''更新物品，包括子弹和飞船'''
-        if stats.game_active:  # 自机生命值大于0， 则游戏继续
+        if stats.game_active:
+            # 自机生命值大于0， 则游戏继续
             gf.object_update(setting=auto_setting, screen=screen, stats=stats,
                              ship=ship, bullets=bullets, aliens=aliens)
         '''绘制屏幕，绘制自机，绘制子弹，然后显示'''
-        gf.screen_update(screen, auto_setting, ship, bullets, aliens)
+        gf.screen_update(screen, stats, auto_setting, ship, bullets, aliens, button)
 
 
 '''运行游戏'''
