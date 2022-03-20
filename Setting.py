@@ -16,7 +16,18 @@ class Settings:
         self.bullet_width = 3
         self.bullet_height = 3
         self.bullet_maxnum = 10  # 子弹最大允许数量
+        # 下面是debug专用子弹的设置
+        self.bullet_debug_width = 1000
         '''敌机设置'''
         self.screen_reserve_space = 50  # 屏幕两侧以及顶端预留的宽度
         self.alien_reserve_space = 50  # 外星人与外星人之间预留的宽度
         self.alien_speed_factor = 0.25  # 外星人速度设置
+        self.alien_line = 1  # 要创建的外星人行数
+        '''过关后加速的比例'''
+        self.speed_up_scale = 1.1
+
+    def increase_speed(self):
+        """提高游戏速度"""
+        # self.ship_speed_factor *= self.speed_up_scale
+        # self.bullet_speed_factor *= self.speed_up_scale
+        self.alien_speed_factor *= self.speed_up_scale

@@ -1,13 +1,13 @@
 import sys
 from time import sleep
+
 import pygame
 
-import button
 import key_event
 from alien import Alien
 
 
-def check_events(screen, stats, setting, ship, bullets, button):
+def check_events(screen, stats, setting, ship, bullets, button, bullets_debug):
     """检查事件，然后对事件进行分类，并分发到对应的函数中去"""
 
     def check_mouse_event(stats_in_mouse, play_button, mouse_x, mouse_y):
@@ -19,30 +19,38 @@ def check_events(screen, stats, setting, ship, bullets, button):
         if event.type == pygame.QUIT:
             sys.exit()
         elif event.type == pygame.KEYDOWN:
-            key_event.key_down(event, setting, screen, ship, bullets)
+            key_event.key_down(event, setting, screen, ship, bullets, bullets_debug, stats)
         elif event.type == pygame.KEYUP:
-            key_event.key_up(event, ship, )
+            key_event.key_up(event, ship)
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             check_mouse_event(stats, button, mouse_x, mouse_y)
 
 
-def object_update(ship, setting, screen, bullets, aliens, stats):
+def object_update(ship, setting, screen, bullets, bullets_debug, aliens, stats):
     """用于对游戏中的几个对象：自机，子弹，敌机进行更新"""
     '''更新自机'''
     ship.update()
+    if bullets_debug:
+        bullets_debug.update(bullets)
     if bullets:
         bullets.update(bullets)
     if aliens:
         aliens.update()
+    else:
+        setting.increase_speed()
+        creat_fleet(setting, screen, setting.alien_line, aliens)
     '''检测子弹是否与敌机发生碰撞'''
     collision = pygame.sprite.groupcollide(bullets, aliens, True, True)
+    collision = pygame.sprite.groupcollide(bullets_debug, aliens, True, True)
     '''检查自机是否与敌机发生碰撞'''
     if pygame.sprite.spritecollideany(ship, aliens):
         ship_hit(setting, stats, screen, ship, bullets, aliens)
 
 
-def screen_update(screen, stats, auto_setting, ship, bullets, aliens, button):
+def screen_update(screen, stats, auto_setting,
+                  ship, bullets, aliens, button,
+                  bullets_debug):
     """更新背景、自机、子弹，敌机然后绘制"""
     screen.fill(auto_setting.background_colour)  # 画出背景图图层
     ship.blitem()  # 在屏幕上画出自机
@@ -56,11 +64,12 @@ def screen_update(screen, stats, auto_setting, ship, bullets, aliens, button):
     if aliens:
         for alien in aliens.sprites():
             alien.blitem()
-    else:
-        creat_fleet(auto_setting, screen, 3, aliens)
     '''游戏非活动时，绘制按钮'''
     if not stats.game_active:
         button.draw_button()
+    if bullets_debug:
+        for bullet_debug in bullets_debug.sprites():
+            bullet_debug.draw_bullet()
     '''显示出绘制的屏幕'''
     pygame.display.flip()
 

@@ -5,7 +5,7 @@ from pygame.sprite import Sprite
 class Bullet(Sprite):
     """对发射子弹进行管理的类"""
 
-    def __init__(self, bullet_setting, bullet_screen, bullet_ship, bullet_group):
+    def __init__(self, bullet_setting, bullet_screen, bullet_ship):
         """对子弹进行初始化"""
         '''直接继承Sprite的各种方法'''
         super().__init__()
